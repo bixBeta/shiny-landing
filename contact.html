@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CONTACT.SYS — FARAZ AHMED</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+  <style>
+    /* ─── RESET ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ─── TOKENS ─── */
+    :root {
+      --bg:          #030303;
+      --white:       #ede9e0;
+      --dim:         #444;
+      --mid:         #888;
+      --green:       #a8ff78;
+      --border:      rgba(255,255,255,0.06);
+      --px:  'Press Start 2P', monospace;
+      --mono: 'Space Mono', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--white);
+      font-family: var(--mono);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ─── SCANLINES ─── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background: repeating-linear-gradient(
+        0deg, transparent, transparent 3px,
+        rgba(0,0,0,0.18) 3px, rgba(0,0,0,0.18) 4px
+      );
+      pointer-events: none;
+      z-index: 9000;
+    }
+
+    /* ─── NOISE ─── */
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");
+      opacity: 0.35;
+      pointer-events: none;
+      z-index: 8999;
+    }
+
+    /* ─── GRADIENT CANVAS ─── */
+    #grad-wrap {
+      position: fixed; inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      overflow: hidden;
+      filter: blur(72px) saturate(1.4);
+    }
+    #grad-canvas { display: block; width: 100%; height: 100%; transition: opacity 0.6s ease; }
+
+    /* ─── THEME TRANSITIONS ─── */
+    body, header, footer, .contact-wrap, .form-panel, .info-panel {
+      transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease;
+    }
+
+    /* ─── LIGHT MODE ─── */
+    [data-theme="light"] {
+      --bg:     #f5f0e8;
+      --white:  #0c0c0c;
+      --dim:    #aaa;
+      --mid:    #777;
+      --green:  #2e7d00;
+      --border: rgba(0,0,0,0.1);
+    }
+    [data-theme="light"] body::before {
+      background: repeating-linear-gradient(
+        0deg, transparent, transparent 3px,
+        rgba(0,0,0,0.05) 3px, rgba(0,0,0,0.05) 4px
+      );
+    }
+    [data-theme="light"] .form-input,
+    [data-theme="light"] .form-textarea {
+      background: rgba(0,0,0,0.04);
+      border-color: rgba(0,0,0,0.15);
+      color: var(--white);
+    }
+    [data-theme="light"] .form-input:focus,
+    [data-theme="light"] .form-textarea:focus {
+      border-color: var(--green);
+      background: rgba(0,0,0,0.06);
+    }
+    [data-theme="light"] .social-link { border-color: rgba(0,0,0,0.1); }
+    [data-theme="light"] .social-link:hover { border-color: var(--green); }
+    [data-theme="light"] .divider { background: rgba(0,0,0,0.08); }
+    [data-theme="light"] .footer-copy { color: rgba(0,0,0,0.35); }
+
+    /* ─── LAYOUT ─── */
+    header {
+      padding: 40px 72px 36px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hdr-left { display: flex; align-items: center; gap: 40px; }
+
+    .back-link {
+      font-family: var(--px);
+      font-size: 7px;
+      color: var(--dim);
+      text-decoration: none;
+      letter-spacing: 0.15em;
+      transition: color 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .back-link:hover { color: var(--green); }
+
+    .hdr-title-sm {
+      font-family: var(--px);
+      font-size: 9px;
+      letter-spacing: 0.08em;
+      color: var(--white);
+    }
+    .hdr-title-sm .accent { color: var(--green); }
+
+    .hdr-right { display: flex; align-items: center; gap: 40px; }
+
+    .sys-badge-sm {
+      font-size: 8px;
+      color: var(--dim);
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      line-height: 1.8;
+    }
+    .sys-badge-sm .online { color: var(--green); }
+
+    /* theme toggle */
+    .theme-toggle {
+      font-family: var(--px);
+      font-size: 7px;
+      color: var(--dim);
+      background: none;
+      border: 1px solid var(--border);
+      padding: 9px 14px;
+      letter-spacing: 0.15em;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .theme-toggle:hover { color: var(--green); border-color: var(--green); }
+
+    /* ─── MAIN LAYOUT ─── */
+    .contact-wrap {
+      display: grid;
+      grid-template-columns: 1fr 1.5fr;
+      min-height: calc(100vh - 97px - 80px);
+      position: relative;
+      z-index: 2;
+    }
+
+    /* ─── LEFT INFO PANEL ─── */
+    .info-panel {
+      padding: 72px 56px 72px 72px;
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .panel-label {
+      font-size: 8px;
+      color: var(--dim);
+      letter-spacing: 0.5em;
+      text-transform: uppercase;
+      margin-bottom: 48px;
+    }
+
+    .info-heading {
+      font-family: var(--px);
+      font-size: clamp(20px, 3vw, 36px);
+      line-height: 1.5;
+      margin-bottom: 24px;
+    }
+    .info-heading .accent { color: var(--green); }
+
+    .info-desc {
+      font-size: 9.5px;
+      color: var(--mid);
+      line-height: 2.2;
+      letter-spacing: 0.08em;
+      margin-bottom: 56px;
+      max-width: 320px;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin-bottom: 40px;
+    }
+
+    .social-label {
+      font-size: 8px;
+      color: var(--dim);
+      letter-spacing: 0.45em;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+
+    .social-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 56px;
+    }
+
+    .social-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      text-decoration: none;
+      color: var(--mid);
+      font-size: 9px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      transition: color 0.2s, border-color 0.2s, background 0.2s;
+    }
+    .social-link:hover {
+      color: var(--green);
+      border-color: rgba(168,255,120,0.3);
+      background: rgba(168,255,120,0.03);
+    }
+    .social-link .arrow { font-size: 12px; opacity: 0.4; transition: opacity 0.2s, transform 0.2s; }
+    .social-link:hover .arrow { opacity: 1; transform: translate(3px,-3px); }
+
+    .direct-email {
+      margin-top: auto;
+      padding-top: 40px;
+    }
+    .direct-email-label {
+      font-size: 8px;
+      color: var(--dim);
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .direct-email a {
+      font-family: var(--px);
+      font-size: 8px;
+      color: var(--green);
+      text-decoration: none;
+      letter-spacing: 0.08em;
+      border-bottom: 1px solid rgba(168,255,120,0.3);
+      padding-bottom: 3px;
+    }
+
+    /* ─── RIGHT FORM PANEL ─── */
+    .form-panel {
+      padding: 72px 72px 72px 56px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-panel .panel-label { margin-bottom: 48px; }
+
+    .contact-form { display: flex; flex-direction: column; gap: 32px; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+    .form-group { display: flex; flex-direction: column; gap: 10px; }
+
+    .form-label {
+      font-family: var(--px);
+      font-size: 6px;
+      color: var(--dim);
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+    }
+
+    .form-input,
+    .form-textarea {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--white);
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 14px 16px;
+      outline: none;
+      letter-spacing: 0.06em;
+      transition: border-color 0.2s, background 0.2s;
+      width: 100%;
+      resize: none;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    .form-input::placeholder,
+    .form-textarea::placeholder { color: var(--dim); }
+    .form-input:focus,
+    .form-textarea:focus {
+      border-color: rgba(168,255,120,0.5);
+      background: rgba(168,255,120,0.02);
+    }
+    .form-textarea { min-height: 160px; }
+
+    /* honeypot — hidden from humans */
+    .hp-field { display: none; }
+
+    /* ─── SUBMIT BUTTON ─── */
+    .submit-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      margin-top: 8px;
+    }
+
+    .btn-submit {
+      font-family: var(--px);
+      font-size: 8px;
+      color: var(--bg);
+      background: var(--green);
+      border: none;
+      padding: 16px 32px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .btn-submit:hover { opacity: 0.85; transform: translateY(-1px); }
+    .btn-submit:active { transform: translateY(0); }
+    .btn-submit:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    .form-note {
+      font-size: 8px;
+      color: var(--dim);
+      letter-spacing: 0.12em;
+      line-height: 1.8;
+    }
+
+    /* ─── STATUS MESSAGES ─── */
+    .form-status {
+      display: none;
+      padding: 16px 20px;
+      border: 1px solid;
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      line-height: 1.8;
+    }
+    .form-status.success {
+      display: block;
+      border-color: rgba(168,255,120,0.4);
+      color: var(--green);
+      background: rgba(168,255,120,0.05);
+    }
+    .form-status.error {
+      display: block;
+      border-color: rgba(255,80,80,0.4);
+      color: #ff8080;
+      background: rgba(255,80,80,0.05);
+    }
+
+    .blink {
+      animation: blink 1s step-end infinite;
+      display: inline-block;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+    /* ─── FOOTER ─── */
+    footer {
+      padding: 32px 72px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+    }
+    .footer-logo { font-family: var(--px); font-size: 9px; color: var(--dim); }
+    .footer-logo .g { color: var(--green); }
+    .footer-copy { font-size: 8px; color: rgba(255,255,255,0.18); letter-spacing: 0.35em; text-transform: uppercase; }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 900px) {
+      header { padding: 28px 24px; flex-wrap: wrap; gap: 20px; }
+      .contact-wrap { grid-template-columns: 1fr; }
+      .info-panel { padding: 48px 24px 40px; border-right: none; border-bottom: 1px solid var(--border); }
+      .form-panel { padding: 48px 24px 48px; }
+      .form-row { grid-template-columns: 1fr; }
+      footer { padding: 28px 24px; flex-direction: column; gap: 12px; text-align: center; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ─── GRADIENT BACKGROUND ─── -->
+  <div id="grad-wrap"><canvas id="grad-canvas"></canvas></div>
+
+  <!-- ─── HEADER ─── -->
+  <header>
+    <div class="hdr-left">
+      <a class="back-link" href="index.html">← BACK</a>
+      <div class="hdr-title-sm">APPS<span class="accent">.SYS</span></div>
+    </div>
+    <div class="hdr-right">
+      <div class="sys-badge-sm">
+        CONTACT.SYS<br>
+        <span class="online">● AWAITING INPUT</span>
+      </div>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle colour mode">◐ LITE</button>
+    </div>
+  </header>
+
+  <!-- ─── MAIN ─── -->
+  <div class="contact-wrap">
+
+    <!-- LEFT: INFO -->
+    <div class="info-panel">
+      <div class="panel-label">[ CHANNEL OPEN ]</div>
+
+      <h1 class="info-heading">
+        SEND A<br>
+        <span class="accent">TRANS</span><br>
+        MISSION
+      </h1>
+
+      <p class="info-desc">
+        AVAILABLE FOR CONSULTING,<br>
+        COLLABORATIONS AND<br>
+        DATA SCIENCE PROJECTS.<br>
+        RESPONSE WITHIN 24 HRS.
+      </p>
+
+      <div class="divider"></div>
+
+      <div class="social-label">// FIND ME ON</div>
+
+      <div class="social-list">
+        <a class="social-link" href="https://github.com/bixBeta" target="_blank" rel="noopener">
+          GITHUB <span class="arrow">↗</span>
+        </a>
+        <a class="social-link" href="https://linkedin.com" target="_blank" rel="noopener">
+          LINKEDIN <span class="arrow">↗</span>
+        </a>
+        <a class="social-link" href="https://twitter.com" target="_blank" rel="noopener">
+          TWITTER <span class="arrow">↗</span>
+        </a>
+        <a class="social-link" href="https://www.upwork.com" target="_blank" rel="noopener">
+          UPWORK <span class="arrow">↗</span>
+        </a>
+        <a class="social-link" href="https://soundcloud.com" target="_blank" rel="noopener">
+          SOUNDCLOUD <span class="arrow">↗</span>
+        </a>
+      </div>
+
+      <div class="direct-email">
+        <div class="direct-email-label">// DIRECT LINE</div>
+        <a href="mailto:hello@fahmed.info">HELLO@FAHMED.INFO</a>
+      </div>
+    </div>
+
+    <!-- RIGHT: FORM -->
+    <div class="form-panel">
+      <div class="panel-label">[ COMPOSE MESSAGE ]</div>
+
+      <form class="contact-form" id="contactForm" novalidate>
+
+        <!-- ══ Web3Forms access key — replace with yours from web3forms.com ══ -->
+        <input type="hidden" name="access_key" value="YOUR_WEB3FORMS_ACCESS_KEY">
+        <input type="hidden" name="subject" value="New message from APPS.SYS contact form">
+        <input type="hidden" name="from_name" value="APPS.SYS Contact">
+
+        <!-- honeypot — catches bots, leave empty -->
+        <div class="hp-field">
+          <input type="checkbox" name="botcheck">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="name">[ NAME ]</label>
+            <input class="form-input" id="name" name="name"
+              type="text" placeholder="YOUR NAME" required autocomplete="name">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="email">[ EMAIL ]</label>
+            <input class="form-input" id="email" name="email"
+              type="email" placeholder="YOUR@EMAIL.COM" required autocomplete="email">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="subject">[ SUBJECT ]</label>
+          <input class="form-input" id="subject" name="subject_line"
+            type="text" placeholder="RE: COLLABORATION" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="message">[ MESSAGE ]</label>
+          <textarea class="form-textarea" id="message" name="message"
+            placeholder="YOUR MESSAGE..." required></textarea>
+        </div>
+
+        <div id="formStatus" class="form-status"></div>
+
+        <div class="submit-row">
+          <button class="btn-submit" id="submitBtn" type="submit">
+            TRANSMIT <span id="btnArrow">→</span>
+          </button>
+          <p class="form-note">
+            ENCRYPTED VIA WEB3FORMS<br>
+            NO DATA STORED ON THIS SERVER
+          </p>
+        </div>
+
+      </form>
+    </div>
+
+  </div><!-- /contact-wrap -->
+
+  <!-- ─── FOOTER ─── -->
+  <footer>
+    <div class="footer-logo">APPS<span class="g">.SYS</span></div>
+    <div class="footer-copy">© 2024 FARAZ AHMED — ALL RIGHTS RESERVED</div>
+  </footer>
+
+  <script>
+  (function () {
+
+    /* ════════════════════════════════════════════════════
+       GRADIENT CONFIG — same as index, tweak freely
+    ════════════════════════════════════════════════════ */
+    const GRAD = {
+      paths: [
+        [ 0.32, 0.28, 0.000210, 0.000168, 0.00, 0.00 ],
+        [ 0.28, 0.35, 0.000147, 0.000189, 1.26, 2.09 ],
+        [ 0.38, 0.25, 0.000273, 0.000147, 2.51, 4.19 ],
+        [ 0.30, 0.38, 0.000189, 0.000231, 3.77, 6.28 ],
+        [ 0.35, 0.30, 0.000231, 0.000210, 5.03, 1.05 ],
+      ],
+      dark: {
+        opacity: 0.22,
+        orbs: [
+          [ 120,   0, 255, 0.55, 0.62 ],
+          [   0, 180, 140, 0.40, 0.52 ],
+          [ 200,   0, 100, 0.42, 0.48 ],
+          [  20,  80, 200, 0.38, 0.56 ],
+          [ 168, 255, 120, 0.18, 0.38 ],
+        ],
+      },
+      light: {
+        opacity: 0.30,
+        orbs: [
+          [ 180, 120, 255, 0.50, 0.62 ],
+          [  80, 210, 170, 0.42, 0.52 ],
+          [ 255, 170, 110, 0.38, 0.48 ],
+          [ 100, 160, 255, 0.35, 0.56 ],
+          [ 255, 160, 200, 0.28, 0.38 ],
+        ],
+      },
+    };
+
+    /* ── CANVAS ANIMATION ─── */
+    const root = document.documentElement;
+    const cvs  = document.getElementById('grad-canvas');
+    const ctx  = cvs.getContext('2d');
+    let _t = 0, _last = 0;
+
+    function draw(ts) {
+      if (!_last) _last = ts;
+      _t += ts - _last; _last = ts;
+      const cfg = GRAD[root.getAttribute('data-theme')] || GRAD.dark;
+      if (cvs.width  !== innerWidth)  cvs.width  = innerWidth;
+      if (cvs.height !== innerHeight) cvs.height = innerHeight;
+      const W = cvs.width, H = cvs.height;
+      ctx.clearRect(0, 0, W, H);
+      cfg.orbs.forEach(([r, g, b, a, sz], i) => {
+        const [rx, ry, fx, fy, px, py] = GRAD.paths[i];
+        const x  = (0.5 + rx * Math.sin(_t * fx + px)) * W;
+        const y  = (0.5 + ry * Math.cos(_t * fy + py)) * H;
+        const rd = sz * Math.max(W, H);
+        const gd = ctx.createRadialGradient(x, y, 0, x, y, rd);
+        gd.addColorStop(0,   `rgba(${r},${g},${b},${a})`);
+        gd.addColorStop(0.5, `rgba(${r},${g},${b},${a * 0.4})`);
+        gd.addColorStop(1,   `rgba(${r},${g},${b},0)`);
+        ctx.fillStyle = gd;
+        ctx.fillRect(0, 0, W, H);
+      });
+      cvs.style.opacity = cfg.opacity;
+      requestAnimationFrame(draw);
+    }
+    requestAnimationFrame(draw);
+
+    /* ── THEME TOGGLE ─── */
+    const btn = document.getElementById('themeToggle');
+    root.setAttribute('data-theme', 'dark');
+    syncLabel('dark');
+    btn.addEventListener('click', () => {
+      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      syncLabel(next);
+    });
+    function syncLabel(t) { btn.textContent = t === 'dark' ? '◐ LITE' : '● DARK'; }
+
+    /* ── FORM SUBMISSION ─── */
+    const form      = document.getElementById('contactForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnArrow  = document.getElementById('btnArrow');
+    const status    = document.getElementById('formStatus');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!form.checkValidity()) { form.reportValidity(); return; }
+
+      // Sending state
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'TRANSMITTING...';
+      status.className = 'form-status';
+      status.textContent = '';
+
+      try {
+        const res  = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          body: new FormData(form),
+        });
+        const json = await res.json();
+
+        if (json.success) {
+          status.className = 'form-status success';
+          status.innerHTML = '▶ TRANSMISSION SENT<span class="blink">_</span><br>'
+            + 'MESSAGE RECEIVED. WILL RESPOND WITHIN 24 HRS.';
+          form.reset();
+          submitBtn.textContent = 'TRANSMITTED ✓';
+        } else {
+          throw new Error(json.message || 'Submission failed');
+        }
+      } catch (err) {
+        status.className = 'form-status error';
+        status.innerHTML = '✕ TRANSMISSION FAILED<br>'
+          + 'TRY AGAIN OR EMAIL DIRECTLY: HELLO@FAHMED.INFO';
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'TRANSMIT <span id="btnArrow">→</span>';
+      }
+    });
+
+  })();
+  </script>
+
+</body>
+</html>
