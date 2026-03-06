@@ -640,6 +640,28 @@
         0 24px 48px rgba(0,0,0,0.1);
     }
 
+    /* ─── GRADIENT CANVAS ─── */
+    #grad-wrap {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      overflow: hidden;
+      /* ↓ tweak blur for sharper/softer blobs */
+      filter: blur(72px) saturate(1.4);
+    }
+    #grad-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      transition: opacity 0.6s ease;
+    }
+
+    /* push all page content above the gradient layer */
+    header     { z-index: 2; }
+    .apps-wrap { position: relative; z-index: 2; }
+    footer     { position: relative; z-index: 2; }
+
     /* ─── RESPONSIVE ─── */
     @media (max-width: 900px) {
       header, .apps-wrap, footer { padding-left: 28px; padding-right: 28px; }
@@ -653,6 +675,9 @@
 </head>
 
 <body>
+
+  <!-- ─── GRADIENT BACKGROUND ─── -->
+  <div id="grad-wrap"><canvas id="grad-canvas"></canvas></div>
 
   <!-- ─── HEADER ─── -->
   <header>
@@ -878,26 +903,116 @@
   </footer>
 
   <script>
-    (function () {
-      const root = document.documentElement;
-      const btn  = document.getElementById('themeToggle');
+  (function () {
 
-      // Apply stored preference immediately (avoids flash)
-      const stored = localStorage.getItem('theme') || 'dark';
-      root.setAttribute('data-theme', stored);
-      syncLabel(stored);
+    /* ════════════════════════════════════════════════════
+       GRADIENT CONFIG — tweak colors and motion here
+       ════════════════════════════════════════════════════
 
-      btn.addEventListener('click', () => {
-        const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-        root.setAttribute('data-theme', next);
-        localStorage.setItem('theme', next);
-        syncLabel(next);
+       paths  — one row per orb: [rx, ry, fx, fy, px, py]
+         rx / ry  : travel amplitude (0 = stationary, 0.5 = full canvas edge)
+         fx / fy  : frequency in rad/ms  (try 0.00010 – 0.00040)
+         px / py  : starting phase offset (spreads orbs apart)
+
+       orbs   — one row per orb: [R, G, B, center-alpha, size]
+         size   : fraction of max(viewportW, viewportH) — try 0.30 – 0.80
+         opacity: overall canvas layer opacity (0 = invisible, 1 = full)
+    ════════════════════════════════════════════════════ */
+
+    const GRAD = {
+
+      paths: [
+        // [  rx,    ry,      fx,      fy,    px,    py  ]
+        [ 0.32,  0.28,  0.000210, 0.000168,  0.00,  0.00 ],
+        [ 0.28,  0.35,  0.000147, 0.000189,  1.26,  2.09 ],
+        [ 0.38,  0.25,  0.000273, 0.000147,  2.51,  4.19 ],
+        [ 0.30,  0.38,  0.000189, 0.000231,  3.77,  6.28 ],
+        [ 0.35,  0.30,  0.000231, 0.000210,  5.03,  1.05 ],
+      ],
+
+      dark: {
+        opacity: 0.22,            // canvas layer opacity
+        orbs: [
+          // [  R,   G,   B,  alpha,  size ]
+          [ 120,   0, 255,  0.55,  0.62 ],   // violet
+          [   0, 180, 140,  0.40,  0.52 ],   // teal
+          [ 200,   0, 100,  0.42,  0.48 ],   // magenta
+          [  20,  80, 200,  0.38,  0.56 ],   // indigo
+          [ 168, 255, 120,  0.18,  0.38 ],   // acid-green (brand accent)
+        ],
+      },
+
+      light: {
+        opacity: 0.30,
+        orbs: [
+          [ 180, 120, 255,  0.50,  0.62 ],   // lavender
+          [  80, 210, 170,  0.42,  0.52 ],   // mint
+          [ 255, 170, 110,  0.38,  0.48 ],   // peach
+          [ 100, 160, 255,  0.35,  0.56 ],   // periwinkle
+          [ 255, 160, 200,  0.28,  0.38 ],   // blush
+        ],
+      },
+
+    };
+
+    /* ── CANVAS ANIMATION ─────────────────────────────── */
+    const root = document.documentElement;
+    const cvs  = document.getElementById('grad-canvas');
+    const ctx  = cvs.getContext('2d');
+    let _t = 0, _last = 0;
+
+    function draw(ts) {
+      if (!_last) _last = ts;
+      _t   += ts - _last;
+      _last = ts;
+
+      const cfg = GRAD[root.getAttribute('data-theme')] || GRAD.dark;
+
+      // Keep canvas resolution in sync with viewport
+      if (cvs.width  !== innerWidth)  cvs.width  = innerWidth;
+      if (cvs.height !== innerHeight) cvs.height = innerHeight;
+      const W = cvs.width, H = cvs.height;
+
+      ctx.clearRect(0, 0, W, H);
+
+      cfg.orbs.forEach(([r, g, b, a, sz], i) => {
+        const [rx, ry, fx, fy, px, py] = GRAD.paths[i];
+        const x   = (0.5 + rx * Math.sin(_t * fx + px)) * W;
+        const y   = (0.5 + ry * Math.cos(_t * fy + py)) * H;
+        const rad = sz * Math.max(W, H);
+
+        const gd = ctx.createRadialGradient(x, y, 0, x, y, rad);
+        gd.addColorStop(0,   `rgba(${r},${g},${b},${a})`);
+        gd.addColorStop(0.5, `rgba(${r},${g},${b},${a * 0.4})`);
+        gd.addColorStop(1,   `rgba(${r},${g},${b},0)`);
+        ctx.fillStyle = gd;
+        ctx.fillRect(0, 0, W, H);
       });
 
-      function syncLabel(theme) {
-        btn.textContent = theme === 'dark' ? '◐ LITE' : '● DARK';
-      }
-    })();
+      cvs.style.opacity = cfg.opacity;
+      requestAnimationFrame(draw);
+    }
+
+    requestAnimationFrame(draw);
+
+    /* ── THEME TOGGLE (always boots dark) ─────────────── */
+    const btn = document.getElementById('themeToggle');
+
+    // Always start dark — ignore any saved preference
+    root.setAttribute('data-theme', 'dark');
+    syncLabel('dark');
+
+    btn.addEventListener('click', () => {
+      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      syncLabel(next);
+    });
+
+    function syncLabel(t) {
+      btn.textContent = t === 'dark' ? '◐ LITE' : '● DARK';
+    }
+
+  })();
   </script>
 
 </body>
