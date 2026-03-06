@@ -267,6 +267,15 @@
       border-bottom: 1px solid rgba(168,255,120,0.3);
       padding-bottom: 3px;
     }
+    .email-loading {
+      font-family: var(--px);
+      font-size: 8px;
+      color: var(--green);
+      letter-spacing: 0.08em;
+      opacity: 0.5;
+      animation: blink 1.2s step-end infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:.5} 50%{opacity:1} }
 
     /* ─── RIGHT FORM PANEL ─── */
     .form-panel {
@@ -472,7 +481,7 @@
 
       <div class="direct-email">
         <div class="direct-email-label">// DIRECT LINE</div>
-        <a href="mailto:hello@fahmed.info">HELLO@FAHMED.INFO</a>
+        <span class="email-loading">[ LOADING... ]</span>
       </div>
     </div>
 
@@ -483,7 +492,7 @@
       <form class="contact-form" id="contactForm" novalidate>
 
         <!-- ══ Web3Forms access key — replace with yours from web3forms.com ══ -->
-        <input type="hidden" name="access_key" value="YOUR_WEB3FORMS_ACCESS_KEY">
+        <input type="hidden" name="access_key" value="ba830ed5-a826-4abc-a2e3-f217663cdb8f">
         <input type="hidden" name="subject" value="New message from APPS.SYS contact form">
         <input type="hidden" name="from_name" value="APPS.SYS Contact">
 
@@ -653,7 +662,7 @@
       } catch (err) {
         status.className = 'form-status error';
         status.innerHTML = '✕ TRANSMISSION FAILED<br>'
-          + 'TRY AGAIN OR EMAIL DIRECTLY: HELLO@FAHMED.INFO';
+          + 'TRY AGAIN LATER.';
         submitBtn.disabled = false;
         submitBtn.innerHTML = 'TRANSMIT <span id="btnArrow">→</span>';
       }
