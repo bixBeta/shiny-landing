@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>APPS.SYS — SHINY APPLICATIONS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+  <style>
+    /* ─── RESET ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ─── TOKENS ─── */
+    :root {
+      --bg:          #030303;
+      --surface:     #060606;
+      --white:       #ede9e0;
+      --dim:         #444;
+      --mid:         #888;
+      --green:       #a8ff78;
+      --green-glow:  rgba(168, 255, 120, 0.12);
+      --border:      rgba(255,255,255,0.06);
+      --px: 'Press Start 2P', monospace;
+      --mono: 'Space Mono', monospace;
+    }
+
+    /* ─── BASE ─── */
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--white);
+      font-family: var(--mono);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ─── SCANLINES ─── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 3px,
+        rgba(0,0,0,0.18) 3px,
+        rgba(0,0,0,0.18) 4px
+      );
+      pointer-events: none;
+      z-index: 9000;
+    }
+
+    /* ─── NOISE GRAIN ─── */
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");
+      opacity: 0.35;
+      pointer-events: none;
+      z-index: 8999;
+    }
+
+    /* ─── HEADER ─── */
+    header {
+      padding: 64px 72px 56px;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+    }
+
+    .hdr-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 72px;
+    }
+
+    .sys-badge {
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--dim);
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      line-height: 2.2;
+    }
+    .sys-badge .online { color: var(--green); }
+
+    .hdr-nav {
+      display: flex;
+      gap: 48px;
+      list-style: none;
+      font-size: 9px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+    }
+    .hdr-nav a { color: var(--dim); text-decoration: none; transition: color 0.2s; }
+    .hdr-nav a:hover { color: var(--white); }
+
+    .hdr-title {
+      font-family: var(--px);
+      font-size: clamp(36px, 6.5vw, 88px);
+      line-height: 1.25;
+      letter-spacing: -0.01em;
+    }
+    .hdr-title .accent { color: var(--green); }
+
+    .hdr-sub {
+      margin-top: 40px;
+      display: flex;
+      align-items: flex-end;
+      gap: 48px;
+    }
+    .hdr-desc {
+      font-size: 9.5px;
+      color: var(--mid);
+      letter-spacing: 0.18em;
+      line-height: 2.2;
+      max-width: 420px;
+      text-transform: uppercase;
+    }
+
+    .ver-tag {
+      font-family: var(--px);
+      font-size: 7px;
+      color: var(--green);
+      border: 1px solid rgba(168,255,120,0.4);
+      padding: 10px 16px;
+      letter-spacing: 0.12em;
+      animation: blink 2.4s step-end infinite;
+      white-space: nowrap;
+    }
+
+    /* blinking cursor block */
+    .cursor-block {
+      display: inline-block;
+      width: 0.6em; height: 1em;
+      background: var(--green);
+      vertical-align: -0.12em;
+      margin-left: 6px;
+      animation: blink 1s step-end infinite;
+    }
+
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+    /* ─── SECTION ─── */
+    .apps-wrap { padding: 72px 72px 0; }
+
+    .sec-label {
+      font-size: 8.5px;
+      color: var(--dim);
+      letter-spacing: 0.55em;
+      text-transform: uppercase;
+      margin-bottom: 56px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    .sec-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ─── GRID ─── */
+    .apps-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+
+    /* ─── CARD ─── */
+    .card {
+      background: var(--bg);
+      padding: 56px 52px;
+      display: flex;
+      gap: 44px;
+      align-items: flex-start;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      transition: background 0.35s;
+    }
+
+    /* radial green hover glow */
+    .card::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 25% 40%, rgba(168,255,120,0.05) 0%, transparent 65%);
+      opacity: 0;
+      transition: opacity 0.4s;
+      pointer-events: none;
+    }
+    .card:hover { background: #050505; }
+    .card:hover::after { opacity: 1; }
+
+    /* ─── DISK SCENE ─── */
+    .disk-scene {
+      perspective: 380px;
+      flex-shrink: 0;
+      width: 144px;
+      height: 144px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .disk {
+      width: 144px;
+      height: 144px;
+      position: relative;
+      animation: diskSpin var(--dur, 11s) linear infinite;
+      /* chamfered bottom-left corner */
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 20px 100%, 0 calc(100% - 20px));
+    }
+
+    @keyframes diskSpin {
+      from { transform: rotateY(0deg); }
+      to   { transform: rotateY(360deg); }
+    }
+
+    /* Glass outer shell */
+    .d-shell {
+      position: absolute; inset: 0;
+      background: var(--d-glass);
+      border: 1px solid var(--d-border);
+      box-shadow:
+        inset 0 1px 1px rgba(255,255,255,0.22),
+        inset 0 -1px 2px rgba(0,0,0,0.5),
+        0 0 32px var(--d-glow),
+        0 24px 48px rgba(0,0,0,0.7);
+      overflow: hidden;
+      /* mirror the clip so it looks contained */
+      clip-path: inherit;
+    }
+
+    /* Top label strip */
+    .d-label {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 24%;
+      background: var(--d-label);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+    }
+    .d-label-txt {
+      font-family: var(--px);
+      font-size: 4.5px;
+      color: rgba(255,255,255,0.45);
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+    }
+
+    /* Internal spinning magnetic disk – visible THROUGH glass */
+    .d-inner {
+      position: absolute;
+      top: 26%;
+      left: 50%;
+      width: 58%;
+      height: 58%;
+      border-radius: 50%;
+      background: conic-gradient(
+        from 0deg,
+        #3a3a3a, #7a7a7a, #c0c0c0, #8a8a8a,
+        #525252, #b0b0b0, #d4d4d4, #9a9a9a,
+        #404040, #989898, #c8c8c8, #6a6a6a,
+        #3a3a3a
+      );
+      border: 2px solid rgba(220,220,220,0.25);
+      box-shadow:
+        inset 0 0 14px rgba(0,0,0,0.65),
+        0 0 12px rgba(160,160,160,0.15);
+      transform: translateX(-50%);
+      animation: innerSpin var(--dur, 11s) linear infinite;
+    }
+
+    @keyframes innerSpin {
+      from { transform: translateX(-50%) rotate(0deg); }
+      to   { transform: translateX(-50%) rotate(360deg); }
+    }
+
+    /* Concentric track rings on internal disk */
+    .d-inner::before {
+      content: '';
+      position: absolute; inset: 16%;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow:
+        0 0 0 6px rgba(0,0,0,0.2),
+        0 0 0 12px rgba(255,255,255,0.06),
+        0 0 0 18px rgba(0,0,0,0.15);
+    }
+
+    /* Center metal hub */
+    .d-hub {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 26%; height: 26%;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 32%, #e0e0e0, #a0a0a0 45%, #606060);
+      box-shadow:
+        inset 0 1px 2px rgba(255,255,255,0.5),
+        inset 0 -1px 2px rgba(0,0,0,0.5),
+        0 0 6px rgba(200,200,200,0.25);
+    }
+
+    /* Center spindle hole */
+    .d-hub::after {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 28%; height: 28%;
+      border-radius: 50%;
+      background: #0a0a0a;
+      box-shadow: inset 0 0 4px #000;
+    }
+
+    /* Metal shutter */
+    .d-shutter {
+      position: absolute;
+      bottom: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 46%; height: 18%;
+      background: linear-gradient(
+        180deg,
+        #999 0%, #c8c8c8 25%, #eaeaea 50%, #bfbfbf 75%, #888 100%
+      );
+      border-radius: 2px 2px 0 0;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.7),
+        inset 0 -1px 0 rgba(0,0,0,0.4);
+    }
+
+    /* Shutter read-window hole */
+    .d-shutter::after {
+      content: '';
+      position: absolute;
+      top: 18%; left: 14%;
+      width: 72%; height: 56%;
+      background: #0a0a0a;
+      border-radius: 1px;
+      box-shadow: inset 0 0 5px #000;
+    }
+
+    /* Write-protect notch */
+    .d-notch {
+      position: absolute;
+      bottom: 18%; right: 7%;
+      width: 9%; height: 8%;
+      background: rgba(0,0,0,0.6);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 1px;
+    }
+
+    /* Glass glare / highlight */
+    .d-shine {
+      position: absolute; inset: 0;
+      background: linear-gradient(
+        130deg,
+        rgba(255,255,255,0.20) 0%,
+        rgba(255,255,255,0.05) 28%,
+        transparent 55%
+      );
+      pointer-events: none;
+    }
+
+    /* Second softer reflection at bottom */
+    .d-shine::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 30%;
+      background: linear-gradient(
+        0deg,
+        rgba(255,255,255,0.04) 0%,
+        transparent 100%
+      );
+    }
+
+    /* ─── DISK COLOR THEMES ─── */
+    .dk-1 {
+      --d-glass: linear-gradient(135deg, rgba(168,255,120,0.13) 0%, rgba(50,120,80,0.06) 100%);
+      --d-border: rgba(168,255,120,0.22);
+      --d-glow:   rgba(168,255,120,0.14);
+      --d-label:  rgba(168,255,120,0.09);
+      --dur: 13s;
+    }
+    .dk-2 {
+      --d-glass: linear-gradient(135deg, rgba(100,180,255,0.13) 0%, rgba(20,60,140,0.06) 100%);
+      --d-border: rgba(100,180,255,0.22);
+      --d-glow:   rgba(100,180,255,0.14);
+      --d-label:  rgba(100,180,255,0.09);
+      --dur: 9s;
+    }
+    .dk-3 {
+      --d-glass: linear-gradient(135deg, rgba(255,100,200,0.13) 0%, rgba(120,0,80,0.06) 100%);
+      --d-border: rgba(255,100,200,0.22);
+      --d-glow:   rgba(255,100,200,0.14);
+      --d-label:  rgba(255,100,200,0.09);
+      --dur: 15s;
+    }
+    .dk-4 {
+      --d-glass: linear-gradient(135deg, rgba(255,200,60,0.13) 0%, rgba(140,80,0,0.06) 100%);
+      --d-border: rgba(255,200,60,0.22);
+      --d-glow:   rgba(255,200,60,0.14);
+      --d-label:  rgba(255,200,60,0.09);
+      --dur: 11s;
+    }
+    .dk-5 {
+      --d-glass: linear-gradient(135deg, rgba(80,255,240,0.13) 0%, rgba(0,80,110,0.06) 100%);
+      --d-border: rgba(80,255,240,0.22);
+      --d-glow:   rgba(80,255,240,0.14);
+      --d-label:  rgba(80,255,240,0.09);
+      --dur: 8s;
+    }
+    .dk-6 {
+      --d-glass: linear-gradient(135deg, rgba(190,100,255,0.13) 0%, rgba(80,0,130,0.06) 100%);
+      --d-border: rgba(190,100,255,0.22);
+      --d-glow:   rgba(190,100,255,0.14);
+      --d-label:  rgba(190,100,255,0.09);
+      --dur: 10s;
+    }
+
+    /* ─── CARD INFO ─── */
+    .card-info { flex: 1; padding-top: 6px; }
+
+    .card-num {
+      font-size: 8px;
+      color: var(--dim);
+      letter-spacing: 0.45em;
+      text-transform: uppercase;
+      margin-bottom: 22px;
+    }
+
+    .card-name {
+      font-family: var(--px);
+      font-size: 14px;
+      line-height: 1.65;
+      color: var(--white);
+      margin-bottom: 18px;
+    }
+
+    .card-desc {
+      font-size: 9.5px;
+      color: rgba(255,255,255,0.4);
+      line-height: 2.1;
+      letter-spacing: 0.06em;
+      margin-bottom: 30px;
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-launch {
+      font-size: 8px;
+      color: var(--green);
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      border-bottom: 1px solid rgba(168,255,120,0.4);
+      padding-bottom: 3px;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .card-launch:hover { opacity: 0.6; }
+
+    .card-arrow {
+      font-size: 18px;
+      color: rgba(255,255,255,0.15);
+      transition: color 0.25s, transform 0.3s;
+      display: block;
+    }
+    .card:hover .card-arrow {
+      color: var(--green);
+      transform: translate(4px, -4px);
+    }
+
+    /* ─── TICKER BAR ─── */
+    .ticker {
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      overflow: hidden;
+      margin-top: 72px;
+      padding: 14px 0;
+      position: relative;
+    }
+    .ticker-track {
+      display: flex;
+      gap: 80px;
+      animation: tickerMove 22s linear infinite;
+      white-space: nowrap;
+    }
+    .ticker-track span {
+      font-size: 8px;
+      color: var(--dim);
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+    .ticker-track .dot { color: var(--green); }
+
+    @keyframes tickerMove {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    /* ─── FOOTER ─── */
+    footer {
+      padding: 56px 72px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 1px;
+    }
+
+    .footer-logo {
+      font-family: var(--px);
+      font-size: 9px;
+      color: var(--dim);
+      letter-spacing: 0.12em;
+    }
+    .footer-logo .g { color: var(--green); }
+
+    .footer-copy {
+      font-size: 8px;
+      color: rgba(255,255,255,0.18);
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+    }
+
+    .footer-status {
+      font-size: 8px;
+      color: var(--dim);
+      letter-spacing: 0.28em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .status-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity: 1; box-shadow: 0 0 8px var(--green); }
+      50%      { opacity: 0.5; box-shadow: 0 0 3px var(--green); }
+    }
+
+    /* ─── THEME TRANSITIONS ─── */
+    body, header, footer, .card, .apps-wrap, .ticker,
+    .hdr-nav a, .card-name, .card-num, .card-desc,
+    .footer-logo, .footer-copy, .footer-status, .sec-label,
+    .theme-toggle, .apps-grid {
+      transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease;
+    }
+
+    /* ─── THEME TOGGLE BUTTON ─── */
+    .hdr-right {
+      display: flex;
+      align-items: center;
+      gap: 40px;
+    }
+
+    .theme-toggle {
+      font-family: var(--px);
+      font-size: 7px;
+      color: var(--dim);
+      background: none;
+      border: 1px solid var(--border);
+      padding: 9px 14px;
+      letter-spacing: 0.15em;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: color 0.2s, border-color 0.2s, background 0.35s;
+    }
+    .theme-toggle:hover {
+      color: var(--green);
+      border-color: var(--green);
+    }
+
+    /* ─── LIGHT MODE ─── */
+    [data-theme="light"] {
+      --bg:         #f5f0e8;
+      --surface:    #ede8df;
+      --white:      #0c0c0c;
+      --dim:        #aaa;
+      --mid:        #777;
+      --green:      #2e7d00;
+      --green-glow: rgba(46, 125, 0, 0.08);
+      --border:     rgba(0,0,0,0.1);
+    }
+
+    /* softer scanlines on light bg */
+    [data-theme="light"] body::before {
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 3px,
+        rgba(0,0,0,0.05) 3px,
+        rgba(0,0,0,0.05) 4px
+      );
+    }
+
+    [data-theme="light"] .apps-grid {
+      background: rgba(0,0,0,0.07);
+      border-color: rgba(0,0,0,0.07);
+    }
+
+    [data-theme="light"] .card:hover { background: #ece7de; }
+
+    [data-theme="light"] .card::after {
+      background: radial-gradient(ellipse at 25% 40%, rgba(46,125,0,0.06) 0%, transparent 65%);
+    }
+
+    [data-theme="light"] .card-desc  { color: rgba(0,0,0,0.45); }
+    [data-theme="light"] .card-arrow { color: rgba(0,0,0,0.18); }
+    [data-theme="light"] .card:hover .card-arrow { color: var(--green); }
+
+    [data-theme="light"] .footer-copy { color: rgba(0,0,0,0.35); }
+
+    [data-theme="light"] .ver-tag { border-color: rgba(46,125,0,0.4); }
+
+    [data-theme="light"] .d-shell {
+      box-shadow:
+        inset 0 1px 1px rgba(255,255,255,0.7),
+        inset 0 -1px 2px rgba(0,0,0,0.12),
+        0 0 32px var(--d-glow),
+        0 24px 48px rgba(0,0,0,0.1);
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 900px) {
+      header, .apps-wrap, footer { padding-left: 28px; padding-right: 28px; }
+      .hdr-top { flex-direction: column; gap: 28px; }
+      .hdr-sub  { flex-direction: column; gap: 20px; align-items: flex-start; }
+      .apps-grid { grid-template-columns: 1fr; }
+      .card { padding: 40px 28px; flex-direction: column; align-items: center; }
+      .card-info { text-align: left; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ─── HEADER ─── -->
+  <header>
+    <div class="hdr-top">
+      <div class="sys-badge">
+        SYS / RUNTIME<br>
+        <span class="online">● ONLINE — 6 PROCS</span>
+        MEM: 1.44 MB&nbsp;&nbsp;UPTIME: ∞
+      </div>
+      <div class="hdr-right">
+        <ul class="hdr-nav">
+          <li><a href="#">ABOUT</a></li>
+          <li><a href="#">DOCS</a></li>
+          <li><a href="#">GITHUB</a></li>
+          <li><a href="#">CONTACT</a></li>
+        </ul>
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle colour mode">◐ LITE</button>
+      </div>
+    </div>
+
+    <h1 class="hdr-title">
+      SHINY<br>
+      <span class="accent">APPS</span><br>
+      .SYS<span class="cursor-block"></span>
+    </h1>
+
+    <div class="hdr-sub">
+      <p class="hdr-desc">
+        SIX DATA-DRIVEN APPLICATIONS<br>
+        RUNNING IN THE CLOUD.<br>
+        BUILT WITH R SHINY.<br>
+        SELECT YOUR PROGRAM.
+      </p>
+      <div class="ver-tag">▶ V2.0.1 LOADED</div>
+    </div>
+  </header>
+
+  <!-- ─── APPS ─── -->
+  <div class="apps-wrap">
+    <div class="sec-label">[ SELECT APPLICATION ]&nbsp;&nbsp;—&nbsp;&nbsp;06 PROGRAMS LOADED</div>
+
+    <div class="apps-grid">
+
+      <!-- 01 -->
+      <div class="card">
+        <div class="disk-scene">
+          <div class="disk dk-1">
+            <div class="d-shell">
+              <div class="d-label"><span class="d-label-txt">DS-001&nbsp;&nbsp;DATAVIZ PRO</span></div>
+              <div class="d-inner"><div class="d-hub"></div></div>
+              <div class="d-shutter"></div>
+              <div class="d-notch"></div>
+              <div class="d-shine"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">APP — 001</div>
+          <div class="card-name">DATA<br>VIZ PRO</div>
+          <div class="card-desc">Interactive visualization dashboard for multidimensional datasets. Drag-and-drop interface with real-time rendering.</div>
+          <div class="card-footer">
+            <a class="card-launch" href="#">LAUNCH APP</a>
+            <span class="card-arrow">↗</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 02 -->
+      <div class="card">
+        <div class="disk-scene">
+          <div class="disk dk-2">
+            <div class="d-shell">
+              <div class="d-label"><span class="d-label-txt">ST-002&nbsp;&nbsp;STAT CORE</span></div>
+              <div class="d-inner"><div class="d-hub"></div></div>
+              <div class="d-shutter"></div>
+              <div class="d-notch"></div>
+              <div class="d-shine"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">APP — 002</div>
+          <div class="card-name">STAT<br>CORE</div>
+          <div class="card-desc">Full-stack statistical analysis suite. Regression, clustering, hypothesis testing — all in one runtime environment.</div>
+          <div class="card-footer">
+            <a class="card-launch" href="#">LAUNCH APP</a>
+            <span class="card-arrow">↗</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 03 -->
+      <div class="card">
+        <div class="disk-scene">
+          <div class="disk dk-3">
+            <div class="d-shell">
+              <div class="d-label"><span class="d-label-txt">ML-003&nbsp;&nbsp;ML EXPLORER</span></div>
+              <div class="d-inner"><div class="d-hub"></div></div>
+              <div class="d-shutter"></div>
+              <div class="d-notch"></div>
+              <div class="d-shine"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">APP — 003</div>
+          <div class="card-name">ML<br>EXPLORER</div>
+          <div class="card-desc">Machine learning model playground. Train, evaluate and compare models interactively — zero code required.</div>
+          <div class="card-footer">
+            <a class="card-launch" href="#">LAUNCH APP</a>
+            <span class="card-arrow">↗</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 04 -->
+      <div class="card">
+        <div class="disk-scene">
+          <div class="disk dk-4">
+            <div class="d-shell">
+              <div class="d-label"><span class="d-label-txt">GE-004&nbsp;&nbsp;GEOMAPPER</span></div>
+              <div class="d-inner"><div class="d-hub"></div></div>
+              <div class="d-shutter"></div>
+              <div class="d-notch"></div>
+              <div class="d-shine"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">APP — 004</div>
+          <div class="card-name">GEO<br>MAPPER</div>
+          <div class="card-desc">Geospatial data viewer built on Leaflet. Supports shapefiles, GeoJSON, and live coordinate overlays.</div>
+          <div class="card-footer">
+            <a class="card-launch" href="#">LAUNCH APP</a>
+            <span class="card-arrow">↗</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 05 -->
+      <div class="card">
+        <div class="disk-scene">
+          <div class="disk dk-5">
+            <div class="d-shell">
+              <div class="d-label"><span class="d-label-txt">FN-005&nbsp;&nbsp;FIN TRACKER</span></div>
+              <div class="d-inner"><div class="d-hub"></div></div>
+              <div class="d-shutter"></div>
+              <div class="d-notch"></div>
+              <div class="d-shine"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">APP — 005</div>
+          <div class="card-name">FIN<br>TRACKER</div>
+          <div class="card-desc">Financial analytics platform for time series modelling, portfolio analysis, and automated risk reporting.</div>
+          <div class="card-footer">
+            <a class="card-launch" href="#">LAUNCH APP</a>
+            <span class="card-arrow">↗</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 06 -->
+      <div class="card">
+        <div class="disk-scene">
+          <div class="disk dk-6">
+            <div class="d-shell">
+              <div class="d-label"><span class="d-label-txt">BI-006&nbsp;&nbsp;BIOSCOPE</span></div>
+              <div class="d-inner"><div class="d-hub"></div></div>
+              <div class="d-shutter"></div>
+              <div class="d-notch"></div>
+              <div class="d-shine"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-num">APP — 006</div>
+          <div class="card-name">BIO<br>SCOPE</div>
+          <div class="card-desc">Biological data analysis for gene expression, population studies, and survival analysis pipelines.</div>
+          <div class="card-footer">
+            <a class="card-launch" href="#">LAUNCH APP</a>
+            <span class="card-arrow">↗</span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /apps-grid -->
+
+    <!-- ─── TICKER ─── -->
+    <div class="ticker">
+      <div class="ticker-track">
+        <span>SHINY APPS</span><span class="dot">◆</span>
+        <span>BUILT WITH R</span><span class="dot">◆</span>
+        <span>ALL SYSTEMS NOMINAL</span><span class="dot">◆</span>
+        <span>DATA-DRIVEN</span><span class="dot">◆</span>
+        <span>1.44 MB CAPACITY</span><span class="dot">◆</span>
+        <span>RUNTIME ACTIVE</span><span class="dot">◆</span>
+        <span>VERSION 2.0.1</span><span class="dot">◆</span>
+        <span>SELECT PROGRAM</span><span class="dot">◆</span>
+        <!-- duplicate for seamless loop -->
+        <span>SHINY APPS</span><span class="dot">◆</span>
+        <span>BUILT WITH R</span><span class="dot">◆</span>
+        <span>ALL SYSTEMS NOMINAL</span><span class="dot">◆</span>
+        <span>DATA-DRIVEN</span><span class="dot">◆</span>
+        <span>1.44 MB CAPACITY</span><span class="dot">◆</span>
+        <span>RUNTIME ACTIVE</span><span class="dot">◆</span>
+        <span>VERSION 2.0.1</span><span class="dot">◆</span>
+        <span>SELECT PROGRAM</span><span class="dot">◆</span>
+      </div>
+    </div>
+
+  </div><!-- /apps-wrap -->
+
+  <!-- ─── FOOTER ─── -->
+  <footer>
+    <div class="footer-logo">APPS<span class="g">.SYS</span></div>
+    <div class="footer-copy">© 2024 — ALL RIGHTS RESERVED</div>
+    <div class="footer-status">
+      <div class="status-dot"></div>
+      ALL 6 PROCESSES RUNNING
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      const root = document.documentElement;
+      const btn  = document.getElementById('themeToggle');
+
+      // Apply stored preference immediately (avoids flash)
+      const stored = localStorage.getItem('theme') || 'dark';
+      root.setAttribute('data-theme', stored);
+      syncLabel(stored);
+
+      btn.addEventListener('click', () => {
+        const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        root.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+        syncLabel(next);
+      });
+
+      function syncLabel(theme) {
+        btn.textContent = theme === 'dark' ? '◐ LITE' : '● DARK';
+      }
+    })();
+  </script>
+
+</body>
+</html>
