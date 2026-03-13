@@ -37,6 +37,28 @@
       overflow-x: hidden;
     }
 
+    /* ─── CUSTOM CURSOR ─── */
+    *, *::before, *::after { cursor: none !important; }
+
+    #c-dot, #c-ring {
+      position: fixed; pointer-events: none; z-index: 99999;
+      top: 0; left: 0;
+    }
+    #c-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #b57bee;
+      margin: -4px 0 0 -4px;
+      transition: width .15s, height .15s, margin .15s, background .15s;
+    }
+    #c-ring {
+      width: 32px; height: 32px; border-radius: 50%;
+      border: 1.5px solid rgba(181,123,238,0.55);
+      margin: -16px 0 0 -16px;
+      transition: width .2s, height .2s, margin .2s, border-color .2s;
+    }
+    #c-dot.hov  { width: 12px; height: 12px; margin: -6px 0 0 -6px; background: #d4a8ff; }
+    #c-ring.hov { width: 52px; height: 52px; margin: -26px 0 0 -26px; border-color: rgba(181,123,238,0.9); }
+
     /* ─── SCANLINES ─── */
     body::before {
       content: '';
@@ -78,7 +100,7 @@
 
     .sys-badge {
       font-family: var(--mono);
-      font-size: 9px;
+      font-size: 12px;
       color: var(--dim);
       letter-spacing: 0.28em;
       text-transform: uppercase;
@@ -90,7 +112,7 @@
       display: flex;
       gap: 48px;
       list-style: none;
-      font-size: 9px;
+      font-size: 12px;
       letter-spacing: 0.3em;
       text-transform: uppercase;
     }
@@ -112,7 +134,7 @@
       gap: 48px;
     }
     .hdr-desc {
-      font-size: 9.5px;
+      font-size: 12.5px;
       color: var(--mid);
       letter-spacing: 0.18em;
       line-height: 2.2;
@@ -122,7 +144,7 @@
 
     .ver-tag {
       font-family: var(--px);
-      font-size: 7px;
+      font-size: 10px;
       color: var(--green);
       border: 1px solid rgba(168,255,120,0.4);
       padding: 10px 16px;
@@ -147,7 +169,7 @@
     .apps-wrap { padding: 72px 72px 0; }
 
     .sec-label {
-      font-size: 8.5px;
+      font-size: 11.5px;
       color: var(--dim);
       letter-spacing: 0.55em;
       text-transform: uppercase;
@@ -432,7 +454,7 @@
     .card-info { flex: 1; padding-top: 6px; }
 
     .card-num {
-      font-size: 8px;
+      font-size: 11px;
       color: var(--dim);
       letter-spacing: 0.45em;
       text-transform: uppercase;
@@ -448,7 +470,7 @@
     }
 
     .card-desc {
-      font-size: 9.5px;
+      font-size: 12.5px;
       color: rgba(255,255,255,0.4);
       line-height: 2.1;
       letter-spacing: 0.06em;
@@ -462,7 +484,7 @@
     }
 
     .card-launch {
-      font-size: 8px;
+      font-size: 11px;
       color: var(--green);
       letter-spacing: 0.28em;
       text-transform: uppercase;
@@ -500,7 +522,7 @@
       white-space: nowrap;
     }
     .ticker-track span {
-      font-size: 8px;
+      font-size: 11px;
       color: var(--dim);
       letter-spacing: 0.4em;
       text-transform: uppercase;
@@ -525,21 +547,21 @@
 
     .footer-logo {
       font-family: var(--px);
-      font-size: 9px;
+      font-size: 12px;
       color: var(--dim);
       letter-spacing: 0.12em;
     }
     .footer-logo .g { color: var(--green); }
 
     .footer-copy {
-      font-size: 8px;
+      font-size: 11px;
       color: rgba(255,255,255,0.18);
       letter-spacing: 0.35em;
       text-transform: uppercase;
     }
 
     .footer-status {
-      font-size: 8px;
+      font-size: 11px;
       color: var(--dim);
       letter-spacing: 0.28em;
       display: flex;
@@ -575,7 +597,7 @@
 
     .theme-toggle {
       font-family: var(--px);
-      font-size: 7px;
+      font-size: 10px;
       color: var(--dim);
       background: none;
       border: 1px solid var(--border);
@@ -592,13 +614,13 @@
 
     /* ─── LIGHT MODE ─── */
     [data-theme="light"] {
-      --bg:         #f5f0e8;
-      --surface:    #ede8df;
+      --bg:         #f0f2f5;
+      --surface:    #e3e6eb;
       --white:      #0c0c0c;
-      --dim:        #aaa;
-      --mid:        #777;
-      --green:      #2e7d00;
-      --green-glow: rgba(46, 125, 0, 0.08);
+      --dim:        #999;
+      --mid:        #666;
+      --green:      #6b3fa0;
+      --green-glow: rgba(107, 63, 160, 0.10);
       --border:     rgba(0,0,0,0.1);
     }
 
@@ -618,10 +640,11 @@
       border-color: rgba(0,0,0,0.07);
     }
 
-    [data-theme="light"] .card:hover { background: #ece7de; }
+    [data-theme="light"] .card        { background: #e3e6eb; }
+    [data-theme="light"] .card:hover  { background: #d5dae3; }
 
     [data-theme="light"] .card::after {
-      background: radial-gradient(ellipse at 25% 40%, rgba(46,125,0,0.06) 0%, transparent 65%);
+      background: radial-gradient(ellipse at 25% 40%, rgba(107,63,160,0.06) 0%, transparent 65%);
     }
 
     [data-theme="light"] .card-desc  { color: rgba(0,0,0,0.45); }
@@ -630,7 +653,7 @@
 
     [data-theme="light"] .footer-copy { color: rgba(0,0,0,0.35); }
 
-    [data-theme="light"] .ver-tag { border-color: rgba(46,125,0,0.4); }
+    [data-theme="light"] .ver-tag { border-color: rgba(107,63,160,0.4); }
 
     [data-theme="light"] .d-shell {
       box-shadow:
@@ -678,6 +701,10 @@
 
   <!-- ─── GRADIENT BACKGROUND ─── -->
   <div id="grad-wrap"><canvas id="grad-canvas"></canvas></div>
+
+  <!-- ─── CURSOR ELEMENTS ─── -->
+  <div id="c-dot"></div>
+  <div id="c-ring"></div>
 
   <!-- ─── HEADER ─── -->
   <header>
@@ -895,7 +922,7 @@
   <!-- ─── FOOTER ─── -->
   <footer>
     <div class="footer-logo">APPS<span class="g">.SYS</span></div>
-    <div class="footer-copy">© 2024 — ALL RIGHTS RESERVED</div>
+    <div class="footer-copy">© 2026 — ALL RIGHTS RESERVED</div>
     <div class="footer-status">
       <div class="status-dot"></div>
       ALL 6 PROCESSES RUNNING
@@ -1011,6 +1038,28 @@
     function syncLabel(t) {
       btn.textContent = t === 'dark' ? '◐ LITE' : '● DARK';
     }
+
+    /* ── CURSOR: DOT + RING ─────────────────────────────── */
+    (function () {
+      const dot  = document.getElementById('c-dot');
+      const ring = document.getElementById('c-ring');
+      let mx = 0, my = 0, rx = 0, ry = 0;
+
+      document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+
+      document.querySelectorAll('a, button').forEach(el => {
+        el.addEventListener('mouseenter', () => { dot.classList.add('hov'); ring.classList.add('hov'); });
+        el.addEventListener('mouseleave', () => { dot.classList.remove('hov'); ring.classList.remove('hov'); });
+      });
+
+      (function anim() {
+        rx += (mx - rx) * 0.16;
+        ry += (my - ry) * 0.16;
+        dot.style.transform  = `translate(${mx}px,${my}px)`;
+        ring.style.transform = `translate(${rx}px,${ry}px)`;
+        requestAnimationFrame(anim);
+      })();
+    })();
 
   })();
   </script>
