@@ -45,10 +45,12 @@
       top: 0; left: 0;
     }
     #c-dot {
-      width: 8px; height: 8px; border-radius: 50%;
-      background: #b57bee;
-      margin: -4px 0 0 -4px;
-      transition: width .15s, height .15s, margin .15s, background .15s;
+      width: 14px; height: 14px; border-radius: 50%;
+      background: transparent;
+      border: 2px solid #b57bee;
+      margin: -7px 0 0 -7px;
+      box-shadow: 0 0 6px 2px rgba(181,123,238,0.7), inset 0 0 4px rgba(181,123,238,0.3);
+      transition: width .15s, height .15s, margin .15s, border-color .15s, box-shadow .15s;
     }
     #c-ring {
       width: 32px; height: 32px; border-radius: 50%;
@@ -56,7 +58,7 @@
       margin: -16px 0 0 -16px;
       transition: width .2s, height .2s, margin .2s, border-color .2s;
     }
-    #c-dot.hov  { width: 12px; height: 12px; margin: -6px 0 0 -6px; background: #d4a8ff; }
+    #c-dot.hov  { width: 18px; height: 18px; margin: -9px 0 0 -9px; border-color: #d4a8ff; box-shadow: 0 0 10px 4px rgba(212,168,255,0.8), inset 0 0 6px rgba(212,168,255,0.4); }
     #c-ring.hov { width: 52px; height: 52px; margin: -26px 0 0 -26px; border-color: rgba(181,123,238,0.9); }
 
     /* ─── SCANLINES ─── */
@@ -454,7 +456,7 @@
     .card-info { flex: 1; padding-top: 6px; }
 
     .card-num {
-      font-size: 11px;
+      font-size: 13px;
       color: var(--dim);
       letter-spacing: 0.45em;
       text-transform: uppercase;
@@ -463,14 +465,14 @@
 
     .card-name {
       font-family: var(--px);
-      font-size: 14px;
+      font-size: 16px;
       line-height: 1.65;
       color: var(--white);
       margin-bottom: 18px;
     }
 
     .card-desc {
-      font-size: 12.5px;
+      font-size: 14.5px;
       color: rgba(255,255,255,0.4);
       line-height: 2.1;
       letter-spacing: 0.06em;
@@ -484,7 +486,7 @@
     }
 
     .card-launch {
-      font-size: 11px;
+      font-size: 13px;
       color: var(--green);
       letter-spacing: 0.28em;
       text-transform: uppercase;
@@ -652,6 +654,21 @@
     [data-theme="light"] .card:hover .card-arrow { color: var(--green); }
 
     [data-theme="light"] .footer-copy { color: rgba(0,0,0,0.35); }
+
+    [data-theme="light"] #c-dot {
+      background: #6b3fa0;
+      border-color: #6b3fa0;
+      box-shadow: 0 0 6px 2px rgba(107,63,160,0.7), inset 0 0 4px rgba(107,63,160,0.3);
+    }
+    [data-theme="light"] #c-dot.hov {
+      background: #8b5cc0;
+      border-color: #8b5cc0;
+      box-shadow: 0 0 10px 4px rgba(107,63,160,0.8), inset 0 0 6px rgba(107,63,160,0.4);
+    }
+    [data-theme="light"] #c-ring { border-color: rgba(107,63,160,0.55); }
+    [data-theme="light"] #c-ring.hov { border-color: rgba(107,63,160,0.9); }
+
+    [data-theme="light"] .card-launch { border-bottom-color: rgba(107,63,160,0.4); }
 
     [data-theme="light"] .ver-tag { border-color: rgba(107,63,160,0.4); }
 
